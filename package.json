@@ -1,0 +1,10 @@
+{
+  "name": "rakuten",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@faker-js/faker": "^8.0.2",
+    "cypress": "^13.1.0"
+  }
+}
