@@ -24,28 +24,38 @@ function inputFirstReservationInfo({
   street = '仙台市青葉区国分町３丁目７−１',
   name = '山田太郎',
   telephone = '0222611111',
-  birthDate = new Date('2000-01-01'),
+  birthYear = '2000',
+  birthMonth = '1',
+  birthDay = '1',
 }) {
-  const birthYear = birthDate.getFullYear();
-  const birthMonth = birthDate.getMonth() + 1;
-  const birthDay = birthDate.getDate();
-
-  cy.get('input[placeholder="Location Code"]').type(locationCode);
-  cy.get('input[placeholder="Vaccination ID"]').type(vaccinationId);
-  cy.get('input[placeholder="Zip Code"]').type(zipCode);
-
-  cy.get('input[name="prefecture"]').type(prefecture);
-  cy.get('li[data-option-index="0"]').click();
-  cy.get('input[placeholder="Address"]').type(street);
-  cy.get('input[placeholder="Name"]').type(name);
-  cy.get('input[placeholder="Telephone"]').type(telephone);
-
-  cy.get('input[name="year"]').type(birthYear);
-  cy.get('li[data-option-index="0"]').click();
-  cy.get('input[name="month"]').type(birthMonth);
-  cy.get('li[data-option-index="0"]').click();
-  cy.get('input[name="day"]').type(birthDay);
-  cy.get('li[data-option-index="0"]').click();
+  if (locationCode !== '')
+    cy.get('input[placeholder="Location Code"]').type(locationCode);
+  if (vaccinationId !== '')
+    cy.get('input[placeholder="Vaccination ID"]').type(vaccinationId);
+  if (zipCode !== '')
+    cy.get('input[placeholder="Zip Code"]').type(zipCode);
+  if (prefecture !== '') {
+    cy.get('input[name="prefecture"]').type(prefecture);
+    cy.get('li[data-option-index="0"]').click();
+  }
+  if (street !== '')
+    cy.get('input[placeholder="Address"]').type(street);
+  if (name !== '')
+    cy.get('input[placeholder="Name"]').type(name);
+  if (telephone !== '')
+    cy.get('input[placeholder="Telephone"]').type(telephone);
+  if (birthYear !== '') {
+    cy.get('input[name="year"]').type(birthYear);
+    cy.get('li[data-option-index="0"]').click();
+  }
+  if (birthMonth !== '') {
+    cy.get('input[name="month"]').type(birthMonth);
+    cy.get('li[data-option-index="0"]').click();
+  }
+  if (birthDay !== '') {
+    cy.get('input[name="day"]').type(birthDay);
+    cy.get('li[data-option-index="0"]').click();
+  }
 }
 
 describe("First Reservation", () => {
@@ -65,18 +75,77 @@ describe("First Reservation", () => {
         const name = faker.helpers.arrayElement(allowedNames);
         const telephone = faker.phone.number('###########');
         const birthDate = faker.date.birthdate({ min: 1900, max: 2005, mode: 'year' });
+        const birthYear = birthDate.getFullYear();
+        const birthMonth = birthDate.getMonth() + 1;
+        const birthDay = birthDate.getDate();
 
-        inputFirstReservationInfo({ locationCode, vaccinationId, zipCode, prefecture, street, name, telephone, birthDate });
+        inputFirstReservationInfo({ locationCode, vaccinationId, zipCode, prefecture, street, name, telephone, birthYear, birthMonth, birthDay });
 
         cy.get('button').contains('Next').click();
         cy.contains('Choose Place & Date');
       });
     }
+
+    it.skip('FIX: Succeeds with location code in zenkaku digits', function () {
+      inputFirstReservationInfo({ locationCode: '０４０００２' });
+
+      cy.get('button').contains('Next').click();
+      cy.contains('Choose Place & Date');
+    });
+
+    it.skip('FIX: Succeeds with vaccination id in zenkaku digits', function () {
+      inputFirstReservationInfo({ vaccinationId: '２１００００００００００' });
+
+      cy.get('button').contains('Next').click();
+      cy.contains('Choose Place & Date');
+    });
+
+    it.skip('FIX: Succeeds with zip code in zenkaku digits', function () {
+      inputFirstReservationInfo({ zipCode: '９８０００００' });
+
+      cy.get('button').contains('Next').click();
+      cy.contains('Choose Place & Date');
+    });
+
+    it.skip('FIX: Succeeds with telephone number in zenkaku digits', function () {
+      inputFirstReservationInfo({ telephone: '０２２２６１１１１１' });
+
+      cy.get('button').contains('Next').click();
+      cy.contains('Choose Place & Date');
+    });
+
+    it.skip('FIX: Succeeds with birth year in zenkaku digits', function () {
+      inputFirstReservationInfo({ birthYear: '２０００' });
+
+      cy.get('button').contains('Next').click();
+      cy.contains('Choose Place & Date');
+    });
+
+    it.skip('FIX: Succeeds with birth month in zenkaku digits', function () {
+      inputFirstReservationInfo({ birthMonth: '０１' });
+
+      cy.get('button').contains('Next').click();
+      cy.contains('Choose Place & Date');
+    });
+
+    it.skip('FIX: Succeeds with birth day in zenkaku digits', function () {
+      inputFirstReservationInfo({ birthMonth: '０１' });
+
+      cy.get('button').contains('Next').click();
+      cy.contains('Choose Place & Date');
+    });
   })
 
   describe('Fails with wrong information', function () {
-    describe.skip('Fails with wrong location code', function () {
-      it('FIX: Fails with location code outside Miyagi, Osaka and Hyogo', function () {
+    describe('Fails with wrong location code', function () {
+      it('Fails with empty location code', function () {
+        inputFirstReservationInfo({ locationCode: '' });
+
+        cy.get('button').contains('Next').click();
+        cy.contains('Location code is invalid');
+      });
+
+      it.skip('FIX: Fails with location code outside Miyagi, Osaka and Hyogo', function () {
         const address = faker.helpers.arrayElement(allowedAddresses);
         const prefecture = address.prefecture;
         const street = address.street;
@@ -90,7 +159,14 @@ describe("First Reservation", () => {
       });
     });
 
-    describe.skip('Fails with wrong vaccination id', function () {
+    describe('Fails with wrong vaccination id', function () {
+      it('Fails with empty vaccination id', function () {
+        inputFirstReservationInfo({ vaccinationId: '' });
+
+        cy.get('button').contains('Next').click();
+        cy.contains('Vaccination id is invalid');
+      });
+
       it('Fails with 11 digit vaccination id', function () {
         const vaccinationId = faker.string.numeric(11);
 
@@ -101,8 +177,15 @@ describe("First Reservation", () => {
       });
     });
 
-    describe.skip('Fails with wrong zip code', function () {
-      it('FIX: Fails with zip code outside Miyagi, Osaka and Hyogo', function () {
+    describe('Fails with wrong zip code', function () {
+      it('Fails with empty zip code', function () {
+        inputFirstReservationInfo({ zipCode: '' });
+
+        cy.get('button').contains('Next').click();
+        cy.contains('Please input valid data');
+      });
+
+      it.skip('FIX: Fails with zip code outside Miyagi, Osaka and Hyogo', function () {
         const address = faker.helpers.arrayElement(allowedAddresses);
         const prefecture = address.prefecture;
         const street = address.street;
@@ -116,8 +199,15 @@ describe("First Reservation", () => {
       });
     });
 
-    describe.skip('Fails with wrong address', function () {
-      it('FIX: Fails with prefecture outside Miyagi, Osaka and Hyogo', function () {
+    describe('Fails with wrong address', function () {
+      it('Fails with empty address', function () {
+        inputFirstReservationInfo({ prefecture: '', street: '' });
+
+        cy.get('button').contains('Next').click();
+        cy.contains('Your prefecture is not available');
+      });
+
+      it('Fails with prefecture outside Miyagi, Osaka and Hyogo', function () {
         const address = faker.helpers.arrayElement(forbiddenAddresses);
         const prefecture = address.prefecture;
         const street = address.street;
@@ -129,8 +219,15 @@ describe("First Reservation", () => {
       });
     });
 
-    describe.skip('Fails with wrong name', function () {
-      it('FIX: Fails with name containing special characters', function () {
+    describe('Fails with wrong name', function () {
+      it('Fails with empty name', function () {
+        inputFirstReservationInfo({ name: '' });
+
+        cy.get('button').contains('Next').click();
+        cy.contains('Please input valid data');
+      });
+
+      it.skip('FIX: Fails with name containing special characters', function () {
         const name = faker.helpers.arrayElement(allowedNames);
         const index = faker.number.int({ min: 0, max: name.length - 1 });
         const wrongName = name.slice(0, index) + '!!??<>' + name.slice(index + 1);
@@ -138,12 +235,19 @@ describe("First Reservation", () => {
         inputFirstReservationInfo({ name: wrongName });
 
         cy.get('button').contains('Next').click();
-        cy.contains('Your prefecture is not available');
+        cy.contains('Please input valid data');
       });
     });
 
-    describe.skip('Fails with wrong telephone number', function () {
-      it('FIX: Fails with 9 digit telephone number', function () {
+    describe('Fails with wrong telephone number', function () {
+      it('Fails with empty telephone number', function () {
+        inputFirstReservationInfo({ telephone: '' });
+
+        cy.get('button').contains('Next').click();
+        cy.contains('Please input valid data');
+      });
+
+      it.skip('FIX: Fails with 9 digit telephone number', function () {
         const telephone = faker.phone.number('#########');
 
         inputFirstReservationInfo({ telephone });
@@ -170,11 +274,21 @@ describe("First Reservation", () => {
       });
     });
 
-    describe.skip('Fails with wrong birth date', function () {
+    describe('Fails with wrong birth date', function () {
+      it('Fails with empty birth date', function () {
+        inputFirstReservationInfo({ birthYear: '', birthMonth: '', birthDay: '' });
+
+        cy.get('button').contains('Next').click();
+        cy.contains('Please input valid data');
+      });
+
       it('Fails with those aged 17', function () {
         const birthDate = new Date('2006-01-01');
+        const birthYear = birthDate.getFullYear();
+        const birthMonth = birthDate.getMonth() + 1;
+        const birthDay = birthDate.getDate();
 
-        inputFirstReservationInfo({ birthDate });
+        inputFirstReservationInfo({ birthYear, birthMonth, birthDay });
 
         cy.get('button').contains('Next').click();
         cy.contains('Your age is not available');
