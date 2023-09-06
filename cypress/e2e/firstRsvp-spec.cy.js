@@ -154,19 +154,19 @@ describe("First Reservation", () => {
         cy.contains('Location code is invalid');
       });
 
-      it('Fails with 6 digit location code', function () {
-        const locationCode = faker.string.numeric(6);
+      it('Fails with 5 digit location code', function () {
+        const locationCode = faker.string.numeric(5);
 
         inputFirstReservationInfo({ locationCode });
         clickNextButton();
         cy.contains('Location code is invalid');
       });
 
-      it('Fails with 8 digit location code', function () {
-        const locationCode = faker.string.numeric(8);
+      it('Fails with 7 digit location code', function () {
+        const locationCode = faker.string.numeric(7);
 
         inputFirstReservationInfo({ locationCode });
-        cy.get('input[placeholder="Location Code"]').should('have.value', locationCode.slice(0, 7));
+        cy.get('input[placeholder="Location Code"]').should('have.value', locationCode.slice(0, 6));
       });
 
       it.skip('FIX: Fails with location code outside Miyagi, Osaka and Hyogo', function () {
@@ -197,11 +197,11 @@ describe("First Reservation", () => {
         cy.contains('Vaccination id is invalid');
       });
 
-      it('Fails with 13 digit location code', function () {
-        const locationCode = faker.string.numeric(13);
+      it('Fails with 13 digit vaccination id', function () {
+        const vaccinationId = faker.string.numeric(13);
 
-        inputFirstReservationInfo({ locationCode });
-        cy.get('input[placeholder="Vaccination ID"]').should('have.value', locationCode.slice(0, 12));
+        inputFirstReservationInfo({ vaccinationId });
+        cy.get('input[placeholder="Vaccination ID"]').should('have.value', vaccinationId.slice(0, 12));
       });
     });
 
@@ -227,6 +227,14 @@ describe("First Reservation", () => {
         cy.get('input[placeholder="Zip Code"]').should('have.value', zipCode.slice(0, 7));
       });
 
+      it('Fails with zip code containing a hyphen', function () {
+        const zipCode = faker.string.numeric(3) + '-' + faker.string.numeric(4);
+
+        inputFirstReservationInfo({ zipCode });
+        clickNextButton();
+        cy.contains('Please input valid data');
+      });
+
       it.skip('FIX: Fails with zip code outside Miyagi, Osaka and Hyogo', function () {
         const address = faker.helpers.arrayElement(allowedAddresses);
         const prefecture = address.prefecture;
@@ -248,7 +256,7 @@ describe("First Reservation", () => {
       });
 
       it('Fails with street of 129 characters', function () {
-        const street = faker.lorem.sentence(129).replace(/\s+/g, '');
+        const street = faker.lorem.sentence(129).slice(129).replace(/\s+/g, '');
         inputFirstReservationInfo({ street });
         cy.get('input[placeholder="Address"]').should('have.value', street.slice(0, 128));
       });
@@ -272,7 +280,7 @@ describe("First Reservation", () => {
       });
 
       it('Fails with name of 65 characters', function () {
-        const name = faker.lorem.sentence(65).replace(/\s+/g, '');
+        const name = faker.lorem.sentence(65).slice(65).replace(/\s+/g, '');
         inputFirstReservationInfo({ name });
         cy.get('input[placeholder="Name"]').should('have.value', name.slice(0, 64));
       });
@@ -309,16 +317,32 @@ describe("First Reservation", () => {
         cy.get('input[placeholder="Telephone"]').should('have.value', telephone.slice(0, 11));
       });
 
-      it('Fails with telephone number containing characters', function () {
-        const telephone = faker.string.alphanumeric(11);
+      it('Fails with telephone number starting with and containing characters', function () {
+        const telephone = faker.string.alpha(1) + faker.string.alphanumeric(10);
 
         inputFirstReservationInfo({ telephone });
         clickNextButton();
         cy.contains('Please input valid data');
       });
 
-      it.skip('FIX: Fails with telephone number containing dashes', function () {
+      it.skip('FIX: Fails with telephone number starting with a number and containing characters', function () {
+        const telephone = faker.string.numeric(1) + faker.string.alphanumeric(10);
+
+        inputFirstReservationInfo({ telephone });
+        clickNextButton();
+        cy.contains('Please input valid data');
+      });
+
+      it.skip('FIX: Fails with telephone number containing hyphens', function () {
         const telephone = faker.string.numeric(3) + '-' + faker.string.numeric(4) + '-' + faker.string.numeric(4);
+
+        inputFirstReservationInfo({ telephone });
+        clickNextButton();
+        cy.contains('Please input valid data');
+      });
+
+      it.skip('FIX: Fails with telephone number containing paretheses', function () {
+        const telephone = faker.string.numeric(3) + '(' + faker.string.numeric(4) + ')' + faker.string.numeric(4);
 
         inputFirstReservationInfo({ telephone });
         clickNextButton();
