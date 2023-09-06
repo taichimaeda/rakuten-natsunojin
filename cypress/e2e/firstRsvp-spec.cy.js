@@ -58,12 +58,16 @@ function inputFirstReservationInfo({
   }
 }
 
+function clickNextButton() {
+  cy.get('button').contains('Next').click();
+}
+
 describe("First Reservation", () => {
   beforeEach(() => {
     cy.visit("/firstRsvp");
   });
 
-  describe.skip('Succeeds with correct information', function () {
+  describe('Succeeds with correct information', function () {
     for (let i = 1; i <= 5; i++) {
       it(`Succeeds with correct information #${i}`, function () {
         const address = faker.helpers.arrayElement(allowedAddresses);
@@ -80,58 +84,50 @@ describe("First Reservation", () => {
         const birthDay = birthDate.getDate();
 
         inputFirstReservationInfo({ locationCode, vaccinationId, zipCode, prefecture, street, name, telephone, birthYear, birthMonth, birthDay });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Choose Place & Date');
       });
     }
 
     it.skip('FIX: Succeeds with location code in zenkaku digits', function () {
       inputFirstReservationInfo({ locationCode: '０４０００２' });
-
-      cy.get('button').contains('Next').click();
+      clickNextButton();
       cy.contains('Choose Place & Date');
     });
 
     it.skip('FIX: Succeeds with vaccination id in zenkaku digits', function () {
       inputFirstReservationInfo({ vaccinationId: '２１００００００００００' });
-
-      cy.get('button').contains('Next').click();
+      clickNextButton();
       cy.contains('Choose Place & Date');
     });
 
     it.skip('FIX: Succeeds with zip code in zenkaku digits', function () {
       inputFirstReservationInfo({ zipCode: '９８０００００' });
-
-      cy.get('button').contains('Next').click();
+      clickNextButton();
       cy.contains('Choose Place & Date');
     });
 
     it.skip('FIX: Succeeds with telephone number in zenkaku digits', function () {
       inputFirstReservationInfo({ telephone: '０２２２６１１１１１' });
-
-      cy.get('button').contains('Next').click();
+      clickNextButton();
       cy.contains('Choose Place & Date');
     });
 
     it.skip('FIX: Succeeds with birth year in zenkaku digits', function () {
       inputFirstReservationInfo({ birthYear: '２０００' });
-
-      cy.get('button').contains('Next').click();
+      clickNextButton();
       cy.contains('Choose Place & Date');
     });
 
     it.skip('FIX: Succeeds with birth month in zenkaku digits', function () {
       inputFirstReservationInfo({ birthMonth: '０１' });
-
-      cy.get('button').contains('Next').click();
+      clickNextButton();
       cy.contains('Choose Place & Date');
     });
 
     it.skip('FIX: Succeeds with birth day in zenkaku digits', function () {
       inputFirstReservationInfo({ birthMonth: '０１' });
-
-      cy.get('button').contains('Next').click();
+      clickNextButton();
       cy.contains('Choose Place & Date');
     });
   })
@@ -140,8 +136,7 @@ describe("First Reservation", () => {
     describe('Fails with wrong location code', function () {
       it('Fails with empty location code', function () {
         inputFirstReservationInfo({ locationCode: '' });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Location code is invalid');
       });
 
@@ -153,8 +148,7 @@ describe("First Reservation", () => {
         const zipCode = faker.location.zipCode(allowedZipCodePrefixes[prefecture] + '#####');
 
         inputFirstReservationInfo({ prefecture, street, locationCode, zipCode });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Please input valid data');
       });
     });
@@ -162,8 +156,7 @@ describe("First Reservation", () => {
     describe('Fails with wrong vaccination id', function () {
       it('Fails with empty vaccination id', function () {
         inputFirstReservationInfo({ vaccinationId: '' });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Vaccination id is invalid');
       });
 
@@ -171,8 +164,7 @@ describe("First Reservation", () => {
         const vaccinationId = faker.string.numeric(11);
 
         inputFirstReservationInfo({ vaccinationId });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Vaccination id is invalid');
       });
     });
@@ -180,8 +172,7 @@ describe("First Reservation", () => {
     describe('Fails with wrong zip code', function () {
       it('Fails with empty zip code', function () {
         inputFirstReservationInfo({ zipCode: '' });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Please input valid data');
       });
 
@@ -193,8 +184,7 @@ describe("First Reservation", () => {
         const zipCode = faker.location.zipCode(faker.helpers.arrayElement(forbiddenZipCodePrefixes) + '#####');
 
         inputFirstReservationInfo({ prefecture, street, locationCode, zipCode });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Please input valid data');
       });
     });
@@ -202,8 +192,7 @@ describe("First Reservation", () => {
     describe('Fails with wrong address', function () {
       it('Fails with empty address', function () {
         inputFirstReservationInfo({ prefecture: '', street: '' });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Your prefecture is not available');
       });
 
@@ -213,8 +202,7 @@ describe("First Reservation", () => {
         const street = address.street;
 
         inputFirstReservationInfo({ prefecture, street });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Your prefecture is not available');
       });
     });
@@ -222,8 +210,7 @@ describe("First Reservation", () => {
     describe('Fails with wrong name', function () {
       it('Fails with empty name', function () {
         inputFirstReservationInfo({ name: '' });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Please input valid data');
       });
 
@@ -233,8 +220,7 @@ describe("First Reservation", () => {
         const wrongName = name.slice(0, index) + '!!??<>' + name.slice(index + 1);
 
         inputFirstReservationInfo({ name: wrongName });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Please input valid data');
       });
     });
@@ -242,8 +228,7 @@ describe("First Reservation", () => {
     describe('Fails with wrong telephone number', function () {
       it('Fails with empty telephone number', function () {
         inputFirstReservationInfo({ telephone: '' });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Please input valid data');
       });
 
@@ -251,8 +236,7 @@ describe("First Reservation", () => {
         const telephone = faker.phone.number('#########');
 
         inputFirstReservationInfo({ telephone });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Please input valid data');
       });
 
@@ -260,16 +244,14 @@ describe("First Reservation", () => {
         const telephone = faker.phone.number('############');
 
         inputFirstReservationInfo({ telephone });
-
         cy.get('input[placeholder="Telephone"]').should('have.value', telephone.slice(0, 11));
       });
 
       it('Fails with telephone number containing characters', function () {
-        const telephone = faker.string.alpha(11);
+        const telephone = faker.string.alphanumeric(11);
 
         inputFirstReservationInfo({ telephone });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Please input valid data');
       });
     });
@@ -277,8 +259,7 @@ describe("First Reservation", () => {
     describe('Fails with wrong birth date', function () {
       it('Fails with empty birth date', function () {
         inputFirstReservationInfo({ birthYear: '', birthMonth: '', birthDay: '' });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Please input valid data');
       });
 
@@ -289,16 +270,9 @@ describe("First Reservation", () => {
         const birthDay = birthDate.getDate();
 
         inputFirstReservationInfo({ birthYear, birthMonth, birthDay });
-
-        cy.get('button').contains('Next').click();
+        clickNextButton();
         cy.contains('Your age is not available');
       });
     });
   });
 });
-
-// 大阪府庁の住所：大阪府大阪市中央区大手前２丁目,電話番号:0669410351,zipcode:5408570 
-// 兵庫県庁の住所：兵庫県神戸市中央区加納町６丁目５−１,電話番号: 0783318181,zipcode:6508570 
-
-
-

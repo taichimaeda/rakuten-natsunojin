@@ -1,25 +1,28 @@
 import { faker } from "@faker-js/faker";
 
+function inputLoginInfo({
+  reservationId = '13694',
+  password = 'qwerty',
+}) {
+  cy.get('input[placeholder="Reservation ID"]').type(reservationId);
+  cy.get('input[placeholder="Password"]').type(password);
+}
+
+function clickLoginButton() {
+  cy.get('button').contains('Login').click();
+}
+
 describe("Login", () => {
   beforeEach(() => {
     cy.visit("/login");
   });
-
-  function inputLoginInfo({
-    reservationId = '13694',
-    password = 'qwerty',
-  }) {
-    cy.get('input[placeholder="Reservation ID"]').type(reservationId);
-    cy.get('input[placeholder="Password"]').type(password);
-  }
 
   it('Succeeds with correct credentials', function () {
     const reservationId = "13694";
     const password = "qwerty";
 
     inputLoginInfo({ reservationId, password });
-
-    cy.get('button').contains('Login').click();
+    clickLoginButton();
     cy.contains('田中太郎');
   });
 
@@ -30,8 +33,7 @@ describe("Login", () => {
         const password = faker.internet.password();
 
         inputLoginInfo({ reservationId, password });
-
-        cy.get('button').contains('Login').click();
+        clickLoginButton();
         cy.contains('Reservation id or password is incorrect');
       });
     }
