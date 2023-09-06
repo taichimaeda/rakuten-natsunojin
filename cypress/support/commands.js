@@ -31,3 +31,6 @@ Cypress.log = function (opts, ...other) {
     }
     return origLog(opts, ...other);
 };
+
+import { Faker, ja } from "@faker-js/faker";
+Cypress.faker = new Faker({ locales: ja });
