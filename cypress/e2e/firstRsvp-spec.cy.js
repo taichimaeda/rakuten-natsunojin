@@ -1,4 +1,5 @@
-import { faker } from "@faker-js/faker";
+import { fakerJA as faker } from "@faker-js/faker";
+import moji from "moji";
 
 const allowedLocationCodes = {
   "宮城県": ["040002", "041009", "042021", "042030", "042056", "042064", "042072", "042081", "042099", "042111", "042129", "042137", "042145", "042153", "042161", "043010", "043028", "043214", "043222", "043231", "043249", "043419", "043613", "043621", "044016", "044041", "044067", "044211", "044229", "044245", "044440", "044458", "045012", "045055", "045811", "046060"],
@@ -12,7 +13,6 @@ const allowedZipCodePrefixes = {
   "兵庫県": "97",
 };
 const forbiddenZipCodePrefixes = ["11", "22", "33", "44", "55", "66", "77", "88", "99", "56"];
-const allowedNames = ["浅野 之賀", "松下 砂南", "三木 章太", "服部 孝信", "小坂 拓也", "小林 光昭", "大槻 繭友", "竹下 琉利", "梶原 直杏", "高田 真吾"]
 const allowedAddresses = [{ "prefecture": "宮城県", "street": "太宰府市大瀬東" }, { "prefecture": "宮城県", "street": "宮古市瑞穂町西郷丙" }, { "prefecture": "宮城県", "street": "水俣市中町" }, { "prefecture": "宮城県", "street": "南陽市上田町" }, { "prefecture": "宮城県", "street": "佐伯市阪田" }, { "prefecture": "大阪府", "street": "糟屋郡粕屋町日置野田" }, { "prefecture": "大阪府", "street": "大島郡天城町三和区川浦" }, { "prefecture": "兵庫県", "street": "一宮市上神輿町" }, { "prefecture": "兵庫県", "street": "武蔵村山市梨ケ原" }];
 const forbiddenAddresses = [{ "prefecture": "香川県", "street": "さぬき市中新" }, { "prefecture": "沖縄県", "street": "大沼郡三島町宝町" }, { "prefecture": "北海道", "street": "吉野郡十津川村油町" }, { "prefecture": "山口県", "street": "高座郡寒川町宮浦" }, { "prefecture": "岐阜県", "street": "鎌倉市下川上" }, { "prefecture": "山梨県", "street": "鎌倉市東本宿" }, { "prefecture": "山口県", "street": "長岡郡大豊町加子母" }, { "prefecture": "佐賀県", "street": "中川郡豊頃町吉田町川手" }, { "prefecture": "富山県", "street": "肝属郡錦江町岩倉" }];
 
@@ -76,7 +76,7 @@ describe("First Reservation", () => {
         const locationCode = faker.helpers.arrayElement(allowedLocationCodes[prefecture]);
         const vaccinationId = faker.number.int({ min: 210000000000, max: 219999999999 });
         const zipCode = faker.location.zipCode(allowedZipCodePrefixes[prefecture] + '#####');
-        const name = faker.helpers.arrayElement(allowedNames);
+        const name = faker.person.fullName();
         const telephone = faker.phone.number('###########');
         const birthDate = faker.date.birthdate({ min: 1900, max: 2005, mode: 'year' });
         const birthYear = birthDate.getFullYear();
@@ -90,43 +90,57 @@ describe("First Reservation", () => {
     }
 
     it.skip('FIX: Succeeds with location code in zenkaku digits', function () {
-      inputFirstReservationInfo({ locationCode: '０４０００２' });
+      const locationCode = moji(faker.string.numeric(7)).convert("HE", "ZE").toString();
+
+      inputFirstReservationInfo({ locationCode });
       clickNextButton();
       cy.contains('Choose Place & Date');
     });
 
     it.skip('FIX: Succeeds with vaccination id in zenkaku digits', function () {
-      inputFirstReservationInfo({ vaccinationId: '２１００００００００００' });
+      const vaccinationId = moji(faker.string.numeric(12)).convert("HE", "ZE").toString();
+
+      inputFirstReservationInfo({ vaccinationId });
       clickNextButton();
       cy.contains('Choose Place & Date');
     });
 
     it.skip('FIX: Succeeds with zip code in zenkaku digits', function () {
-      inputFirstReservationInfo({ zipCode: '９８０００００' });
+      const zipCode = moji(faker.string.numeric(7)).convert("HE", "ZE").toString();
+
+      inputFirstReservationInfo({ zipCode });
       clickNextButton();
       cy.contains('Choose Place & Date');
     });
 
     it.skip('FIX: Succeeds with telephone number in zenkaku digits', function () {
-      inputFirstReservationInfo({ telephone: '０２２２６１１１１１' });
+      const telephone = moji(faker.string.numeric(11)).convert("HE", "ZE").toString();
+
+      inputFirstReservationInfo({ telephone });
       clickNextButton();
       cy.contains('Choose Place & Date');
     });
 
     it.skip('FIX: Succeeds with birth year in zenkaku digits', function () {
-      inputFirstReservationInfo({ birthYear: '２０００' });
+      const birthYear = moji(faker.string.numeric(4)).convert("HE", "ZE").toString();
+
+      inputFirstReservationInfo({ birthYear });
       clickNextButton();
       cy.contains('Choose Place & Date');
     });
 
     it.skip('FIX: Succeeds with birth month in zenkaku digits', function () {
-      inputFirstReservationInfo({ birthMonth: '０１' });
+      const birthMonth = moji(faker.string.numeric(2)).convert("HE", "ZE").toString();
+
+      inputFirstReservationInfo({ birthMonth });
       clickNextButton();
       cy.contains('Choose Place & Date');
     });
 
     it.skip('FIX: Succeeds with birth day in zenkaku digits', function () {
-      inputFirstReservationInfo({ birthMonth: '０１' });
+      const birthDay = moji(faker.string.numeric(2)).convert("HE", "ZE").toString();
+
+      inputFirstReservationInfo({ birthDay });
       clickNextButton();
       cy.contains('Choose Place & Date');
     });
@@ -138,6 +152,21 @@ describe("First Reservation", () => {
         inputFirstReservationInfo({ locationCode: '' });
         clickNextButton();
         cy.contains('Location code is invalid');
+      });
+
+      it('Fails with 6 digit location code', function () {
+        const locationCode = faker.string.numeric(6);
+
+        inputFirstReservationInfo({ locationCode });
+        clickNextButton();
+        cy.contains('Location code is invalid');
+      });
+
+      it('Fails with 8 digit location code', function () {
+        const locationCode = faker.string.numeric(8);
+
+        inputFirstReservationInfo({ locationCode });
+        cy.get('input[placeholder="Location Code"]').should('have.value', locationCode.slice(0, 7));
       });
 
       it.skip('FIX: Fails with location code outside Miyagi, Osaka and Hyogo', function () {
@@ -167,6 +196,13 @@ describe("First Reservation", () => {
         clickNextButton();
         cy.contains('Vaccination id is invalid');
       });
+
+      it('Fails with 13 digit location code', function () {
+        const locationCode = faker.string.numeric(13);
+
+        inputFirstReservationInfo({ locationCode });
+        cy.get('input[placeholder="Vaccination ID"]').should('have.value', locationCode.slice(0, 12));
+      });
     });
 
     describe('Fails with wrong zip code', function () {
@@ -174,6 +210,21 @@ describe("First Reservation", () => {
         inputFirstReservationInfo({ zipCode: '' });
         clickNextButton();
         cy.contains('Please input valid data');
+      });
+
+      it('Fails with 6 digit zip code', function () {
+        const zipCode = faker.string.numeric(6);
+
+        inputFirstReservationInfo({ zipCode });
+        clickNextButton();
+        cy.contains('Please input valid data');
+      });
+
+      it('Fails with 8 digit zip code', function () {
+        const zipCode = faker.string.numeric(8);
+
+        inputFirstReservationInfo({ zipCode });
+        cy.get('input[placeholder="Zip Code"]').should('have.value', zipCode.slice(0, 7));
       });
 
       it.skip('FIX: Fails with zip code outside Miyagi, Osaka and Hyogo', function () {
@@ -196,6 +247,12 @@ describe("First Reservation", () => {
         cy.contains('Your prefecture is not available');
       });
 
+      it('Fails with street of 129 characters', function () {
+        const street = faker.lorem.sentence(129).replace(/\s+/g, '');
+        inputFirstReservationInfo({ street });
+        cy.get('input[placeholder="Address"]').should('have.value', street.slice(0, 128));
+      });
+
       it('Fails with prefecture outside Miyagi, Osaka and Hyogo', function () {
         const address = faker.helpers.arrayElement(forbiddenAddresses);
         const prefecture = address.prefecture;
@@ -214,10 +271,15 @@ describe("First Reservation", () => {
         cy.contains('Please input valid data');
       });
 
+      it('Fails with name of 65 characters', function () {
+        const name = faker.lorem.sentence(65).replace(/\s+/g, '');
+        inputFirstReservationInfo({ name });
+        cy.get('input[placeholder="Name"]').should('have.value', name.slice(0, 64));
+      });
+
       it.skip('FIX: Fails with name containing special characters', function () {
-        const name = faker.helpers.arrayElement(allowedNames);
-        const index = faker.number.int({ min: 0, max: name.length - 1 });
-        const wrongName = name.slice(0, index) + '!!??<>' + name.slice(index + 1);
+        const name = faker.person.fullName() + '!?.,\\=+-';
+        const wrongName = faker.helpers.shuffle(name.split('')).join('');
 
         inputFirstReservationInfo({ name: wrongName });
         clickNextButton();
@@ -254,6 +316,14 @@ describe("First Reservation", () => {
         clickNextButton();
         cy.contains('Please input valid data');
       });
+
+      it.skip('FIX: Fails with telephone number containing dashes', function () {
+        const telephone = faker.string.numeric(3) + '-' + faker.string.numeric(4) + '-' + faker.string.numeric(4);
+
+        inputFirstReservationInfo({ telephone });
+        clickNextButton();
+        cy.contains('Please input valid data');
+      });
     });
 
     describe('Fails with wrong birth date', function () {
@@ -261,6 +331,54 @@ describe("First Reservation", () => {
         inputFirstReservationInfo({ birthYear: '', birthMonth: '', birthDay: '' });
         clickNextButton();
         cy.contains('Please input valid data');
+      });
+
+      it('Fails with 3 digit birth year', function () {
+        const birthYear = faker.string.numeric(3);
+
+        inputFirstReservationInfo({ birthYear: '', birthMonth: '', birthDay: '' });
+        cy.get('input[name="year"]').type(birthYear);
+        cy.get('.MuiAutocomplete-popper').should('not.contain', `/^${birthYear}$/`);
+      });
+
+      it('Fails with 5 digit birth year', function () {
+        const birthYear = faker.string.numeric(5);
+
+        inputFirstReservationInfo({ birthYear: '', birthMonth: '', birthDay: '' });
+        cy.get('input[name="year"]').type(birthYear);
+        cy.get('.MuiAutocomplete-popper').contains('No options')
+      });
+
+      it('Fails with 1 digit birth month', function () {
+        const birthMonth = faker.string.numeric(1);
+
+        inputFirstReservationInfo({ birthMonth: '', birthDay: '' });
+        cy.get('input[name="month"]').type(birthMonth);
+        cy.get('.MuiAutocomplete-popper').should('not.contain', `/^${birthMonth}$/`);
+      });
+
+      it('Fails with 3 digit birth month', function () {
+        const birthMonth = faker.string.numeric(3);
+
+        inputFirstReservationInfo({ birthMonth: '', birthDay: '' });
+        cy.get('input[name="month"]').type(birthMonth);
+        cy.get('.MuiAutocomplete-popper').contains('No options')
+      });
+
+      it('Fails with 1 digit birth day', function () {
+        const birthDay = faker.string.numeric(1);
+
+        inputFirstReservationInfo({ birthDay: '' });
+        cy.get('input[name="day"]').type(birthDay);
+        cy.get('.MuiAutocomplete-popper').should('not.contain', `/^${birthDay}$/`);
+      });
+
+      it('Fails with 3 digit birth day', function () {
+        const birthDay = faker.string.numeric(3);
+
+        inputFirstReservationInfo({ birthDay: '' });
+        cy.get('input[name="day"]').type(birthDay);
+        cy.get('.MuiAutocomplete-popper').contains('No options')
       });
 
       it('Fails with those aged 17', function () {
